@@ -8,6 +8,7 @@ import LogoutButton from "./LogoutButton";
 // Import our database connection and model
 import { connectDB } from "@/lib/db";
 import Message from "@/models/Message";
+import DeleteButton from "./DeleteButton";
 
 export default async function Dashboard() {
   // 1. Fetch the session securely
@@ -86,9 +87,7 @@ export default async function Dashboard() {
                   <div className="flex justify-between items-center border-t border-neutral-800 pt-4">
                     <span className="text-neutral-600 font-mono text-xs uppercase tracking-widest">{msg.date}</span>
                     {/* Note: Delete functionality is still visual-only */}
-                    <button className="text-red-900 hover:text-red-500 font-mono text-xs uppercase tracking-widest transition-colors">
-                      [ Delete ]
-                    </button>
+                    <DeleteButton messageId={msg.id.toString()} />
                   </div>
                 </div>
               ))
