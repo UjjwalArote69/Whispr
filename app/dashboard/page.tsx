@@ -5,26 +5,40 @@ import { redirect } from "next/navigation";
 import CopyLinkButton from "./CopyLinkButton";
 import LogoutButton from "./LogoutButton";
 
+// Import our database connection and model
+import { connectDB } from "@/lib/db";
+import Message from "@/models/Message";
+
 export default async function Dashboard() {
-  // 1. Fetch the session securely on the server
+  // 1. Fetch the session securely
   const session = await getServerSession(authOptions);
 
-  // 2. If no session exists, boot them back to the login page
   if (!session) {
     redirect("/login");
   }
 
-  // 3. Construct the user's public link
-  // NextAuth stores the username inside session.user.name based on our configuration
   const username = session.user?.name;
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const profileLink = `${baseURL}/u/${username}`;
 
-  // 4. Mock Data (We will replace this with a real MongoDB fetch later)
-  const messages = [
-    { id: "1", text: "The new gritty design is absolutely brutal. I love it.", date: "JUST NOW" },
-    { id: "2", text: "Are you actually building this whole thing in Next.js?", date: "2 HOURS AGO" },
-  ];
+  // 2. Fetch LIVE data directly from MongoDB
+  await connectDB();
+  
+  // Find messages for this user, sorted by newest (-1)
+  const rawMessages = await Message.find({ recipientUsername: username }).sort({ createdAt: -1 });
+
+  // 3. Format the Mongoose documents into plain JavaScript objects so React can render them
+  const messages = rawMessages.map((msg) => ({
+    id: msg._id.toString(),
+    text: msg.content,
+    // Format the date to look like "Oct 24, 2:30 PM"
+    date: new Date(msg.createdAt).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }),
+  }));
 
   return (
     <main className="min-h-screen bg-neutral-950 bg-grain text-white p-6 font-sans">
@@ -71,6 +85,7 @@ export default async function Dashboard() {
                   <p className="text-lg font-medium leading-relaxed mb-8 text-neutral-200">"{msg.text}"</p>
                   <div className="flex justify-between items-center border-t border-neutral-800 pt-4">
                     <span className="text-neutral-600 font-mono text-xs uppercase tracking-widest">{msg.date}</span>
+                    {/* Note: Delete functionality is still visual-only */}
                     <button className="text-red-900 hover:text-red-500 font-mono text-xs uppercase tracking-widest transition-colors">
                       [ Delete ]
                     </button>
