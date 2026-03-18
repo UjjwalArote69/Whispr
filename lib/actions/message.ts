@@ -10,10 +10,28 @@ import { connectDB } from "../db";
 export async function sendMessage(username: string, content: string) {
   try {
     await connectDB();
-    // ... logic
+
+    if (!username || !content) {
+      throw new Error("Username and content are required.");
+    }
+
+    // Verify the target user exists
+    const targetUser = await User.findOne({ username });
+    if (!targetUser) {
+      throw new Error("Target user not found in the system.");
+    }
+
+    // Save the message to the database
+    await Message.create({
+      recipientUsername: username,
+      content: content,
+    });
+
+    revalidatePath(`/dashboard`);
+
+    return { success: true };
   } catch (error: any) {
-    // This will show up in your VERCEL LOGS dashboard
-    console.error("FULL PRODUCTION ERROR:", error); 
+    console.error("FULL PRODUCTION ERROR:", error);
     throw new Error(error.message || "Failed to transmit message.");
   }
 }

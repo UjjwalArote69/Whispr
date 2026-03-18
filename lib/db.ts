@@ -19,7 +19,7 @@ export const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI);
         isConnected = true;
-        console.log("MONGODB is already connected");
+        console.log("MONGODB connected successfully");
     } catch (error) {
         console.log("Error connecting to MONGODB: ", error);
         

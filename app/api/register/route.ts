@@ -9,10 +9,14 @@ export async function POST(req: Request) {
 
         await connectDB();
 
-        const existingUser = await User.findOne({ email });
-
-        if (existingUser) {
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
             return NextResponse.json({ message: "Email is already taken" }, { status: 400 });
+        }
+
+        const existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+            return NextResponse.json({ message: "Username is already taken" }, { status: 400 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,6 +26,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ user, message: "User registered successfully!" }, { status: 201 });
 
     } catch (error) {
-        return NextResponse.json({ message: "An error occurred during registering user" })
+        console.error("Registration error:", error);
+        return NextResponse.json({ message: "An error occurred during registering user" }, { status: 500 })
     }
 }

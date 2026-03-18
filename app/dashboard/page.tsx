@@ -9,6 +9,7 @@ import LogoutButton from "./LogoutButton";
 import { connectDB } from "@/lib/db";
 import Message from "@/models/Message";
 import DeleteButton from "./DeleteButton";
+import RefreshButton from "./RefreshButton";
 
 export default async function Dashboard() {
   // 1. Fetch the session securely
@@ -72,7 +73,10 @@ export default async function Dashboard() {
         <section>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xs font-mono text-neutral-400 uppercase tracking-widest">Intercepted Transmissions</h2>
-            <span className="text-xs font-mono text-neutral-600 uppercase">Count: {messages.length}</span>
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-mono text-neutral-600 uppercase">Count: {messages.length}</span>
+              <RefreshButton />
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-neutral-800 border border-neutral-800">
